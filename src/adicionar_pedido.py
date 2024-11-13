@@ -176,7 +176,17 @@ class AdicionarPedidoWidget(QWidget):
     def finalizar_pedido(self):
         """Abre a janela de forma de pagamento."""
         total = float(self.total_label.text().replace("Total do Pedido: R$ ", "").replace(",", "."))
-        dialog = PagamentoDialog(total, self)
+        
+        # Cria uma lista de produtos para enviar
+        produtos = []
+        for row in range(self.tabela_pedido.rowCount()):
+            produto = self.tabela_pedido.item(row, 0).text()
+            quantidade = int(self.tabela_pedido.item(row, 1).text())
+            subtotal = float(self.tabela_pedido.item(row, 2).text().replace("R$ ", "").replace(",", "."))
+            produtos.append({"produto": produto, "quantidade": quantidade, "subtotal": subtotal})
+
+        # Passe o cliente, total e produtos
+        dialog = PagamentoDialog(total, self.cliente_input.text(), produtos, self)
         if dialog.exec() == QDialog.Accepted:
             QMessageBox.information(self, "Pedido Finalizado", "Seu pedido foi finalizado com sucesso.")
             self.limpar_campos()
@@ -184,6 +194,7 @@ class AdicionarPedidoWidget(QWidget):
             self.tabela_pedido.setRowCount(0)
             self.itens.clear()
             self.atualizar_total()
+            
     def cancelar_pedido(self):
         self.limpar_campos()
         self.tabela_pedido.clearContents()

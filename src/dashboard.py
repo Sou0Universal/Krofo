@@ -17,7 +17,6 @@ from .save import save_state, load_state
 from src.importar_produtos import ImportarProdutosWidget
 from src.adicionar_pedido import AdicionarPedidoWidget
 
-
 class DashboardWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -145,18 +144,32 @@ class DashboardWindow(QWidget):
         else:
             button.clicked.connect(getattr(self, callback_name))
 
+        # Ajusta o QLabel com um tamanho de fonte menor e uma fonte mais adequada
         label = QLabel(text)
         label.setAlignment(Qt.AlignCenter)
+        label.setFixedHeight(20)
+        label.setStyleSheet("""
+            QLabel {
+                font-size: 10px;  /* Define um tamanho de fonte menor */
+                font-family: Arial, sans-serif;  /* Define uma fonte mais compacta */
+            }
+        """)
 
+        # Layout vertical com espaçadores
         vbox = QVBoxLayout()
         vbox.addWidget(button)
         vbox.addWidget(label)
         vbox.setAlignment(Qt.AlignCenter)
+        vbox.addStretch(1)  # Espaço antes do botão
+        vbox.addStretch(1)  # Espaço depois do label
 
         container = QWidget()
         container.setLayout(vbox)
 
-        self.button_layout.addWidget(container, 0, index)
+        # Adiciona o container ao layout da grade com alinhamento centralizado
+        self.button_layout.addWidget(container, 0, index, Qt.AlignHCenter | Qt.AlignVCenter)
+
+
 
     def set_button_icon(self, button, icon_path):
         pixmap = QPixmap(icon_path)
@@ -170,15 +183,14 @@ class DashboardWindow(QWidget):
             self.open_abrir_caixa()
         else:
             self.open_fechar_caixa()
-            
-    def open_tab(self, tab_name, widget=None):
+
+    def open_tab(self, tab_name):
+        global layout
         existing_tabs = [self.tab_widget.tabText(i) for i in range(self.tab_widget.count())]
         if tab_name not in existing_tabs:
             new_tab = QWidget()
             layout = QVBoxLayout()
 
-            if widget is not None:
-                layout.addWidget(widget)           
             if tab_name == "Abertura de Caixa":
                 widget = AbrirCaixaWidget(self.fechar_caixa_callback)
                 layout.addWidget(widget)
@@ -303,14 +315,10 @@ class DashboardWindow(QWidget):
         self.open_tab("Histórico de Itens Vendidos")
 
     def open_adicionar_pedido(self):
-        if not self.caixa_aberto: 
-            QMessageBox.warning(self, "Atenção", "O caixa deve estar aberto para adicionar pedidos.")
-            return 
-        
-        widget = AdicionarPedidoWidget()
-        widget.set_callback(self.adicionar_transacao)
-        self.open_tab("Adicionar Pedido", widget) 
-        
+        self.adicionar_pedido_widget = AdicionarPedidoWidget()
+        self.adicionar_pedido_widget.set_callback(self.adicionar_transacao)
+        self.adicionar_pedido_widget.show()
+
     def close_app(self):
         self.close()
         

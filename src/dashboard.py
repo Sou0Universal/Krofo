@@ -17,6 +17,7 @@ from .save import save_state, load_state
 from src.importar_produtos import ImportarProdutosWidget
 from src.adicionar_pedido import AdicionarPedidoWidget
 
+
 class DashboardWindow(QWidget):
     def __init__(self):
         super().__init__()

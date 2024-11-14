@@ -2,7 +2,7 @@ import sqlite3
 import os
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QPushButton, QLabel, QMessageBox, QTextEdit
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "transactions.db")
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "sistema.db")
 
 class DetalhesFechamentoDialog(QDialog):
     def __init__(self, row_data):

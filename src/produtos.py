@@ -9,7 +9,7 @@ from PySide6.QtCore import Signal
 # Definição do caminho do banco de dados
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(BASE_DIR, "..", "data")
-PRODUTOS_DB_PATH = os.path.join(DB_DIR, "produtos.db")
+PRODUTOS_DB_PATH = os.path.join(DB_DIR, "sistema.db")
 
 class ListaProdutosDialog(QDialog):
     produto_selecionado = Signal(dict)

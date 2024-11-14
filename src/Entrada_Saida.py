@@ -3,7 +3,7 @@ import sqlite3
 from PySide6 import QtWidgets
 from PySide6.QtCore import QDateTime
 
-DB_PATH = os.path.join(os.getcwd(), "data", "transactions.db")
+DB_PATH = os.path.join(os.getcwd(), "data", "sistema.db")
 
 class EntradaSaidaWindow(QtWidgets.QWidget):
     def __init__(self, close_callback=None):

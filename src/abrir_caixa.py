@@ -5,7 +5,7 @@ from PySide6.QtCore import QDateTime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(BASE_DIR, "..", "data")
-DB_PATH = os.path.join(DB_DIR, "transactions.db")
+DB_PATH = os.path.join(DB_DIR, "sistema.db")
 
 class AbrirCaixaWidget(QWidget):
     def __init__(self, fechar_caixa_callback):
@@ -32,13 +32,24 @@ class AbrirCaixaWidget(QWidget):
         main_layout.addLayout(valor_layout)
         main_layout.addWidget(abrir_button)
 
-    def get_state(self):
-        return {
-            'valor_inicial': self.valor_inicial_input.text()
-        }
+        self.verifica_banco_dados()
 
-    def set_state(self, state):
-        self.valor_inicial_input.setText(state.get('valor_inicial', ''))
+    def verifica_banco_dados(self):
+        if not os.path.exists(DB_DIR):
+            os.makedirs(DB_DIR)
+
+        if not os.path.exists(DB_PATH):
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS close_registers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date TEXT,
+                    opening_value REAL
+                )
+            ''')
+            conn.commit()
+            conn.close()
 
     def abrir_caixa(self):
         try:

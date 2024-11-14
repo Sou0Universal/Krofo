@@ -5,15 +5,15 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QCheckBox, QListWidget, QGridLayout, QInputDialog, QMessageBox, QListWidgetItem, QTextEdit, QLineEdit
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QDateTime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(BASE_DIR, "..", "data")
-DB_PATH = os.path.join(DB_DIR, "pagamentos.db")
+DB_PATH = os.path.join(DB_DIR, "sistema.db")
 
 os.makedirs(DB_DIR, exist_ok=True)
 
-def criar_banco_se_nao_existir():
+def criar_tabelas_se_necessario():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
@@ -28,10 +28,45 @@ def criar_banco_se_nao_existir():
             troco REAL
         )
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS transacoes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            descricao TEXT,
+            tipo TEXT,
+            valor REAL,
+            data TEXT
+        )
+    """)
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS pedidos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cliente_nome TEXT,
+            cliente_telefone TEXT,
+            data TEXT,
+            horario TEXT,
+            valor_total REAL,
+            status TEXT,
+            total REAL
+        )
+    """)
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS itens_pedido (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pedido_id INTEGER,
+            produto TEXT,
+            quantidade INTEGER,
+            preco REAL,
+            subtotal REAL,
+            FOREIGN KEY(pedido_id) REFERENCES pedidos(id)
+        )
+    """)
+    
     conn.commit()
     conn.close()
 
-criar_banco_se_nao_existir()
+criar_tabelas_se_necessario()
 
 class PagamentoDialog(QDialog):
     def __init__(self, total_pedido, cliente, produtos, parent=None):
@@ -120,6 +155,7 @@ class PagamentoDialog(QDialog):
 
         self.botao_voltar = QPushButton("Voltar")
         self.botao_finalizar = QPushButton("Finalizar (F7)")
+        self.botao_finalizar.clicked.connect(self.finalizar_pagamento)
         self.botao_finalizar_imprimir = QPushButton("Finalizar e Imprimir (F9)")
         self.botoes_layout = QHBoxLayout()
         self.botoes_layout.addWidget(self.botao_voltar)
@@ -130,6 +166,33 @@ class PagamentoDialog(QDialog):
 
         self.layout_principal.addLayout(self.secao_esquerda)
         self.layout_principal.addLayout(self.secao_direita)
+        
+    def finalizar_pagamento(self):
+        try:
+            # Adiciona a transação ao caixa
+            self.adicionar_entrada_no_caixa()
+
+            QMessageBox.information(self, "Sucesso", "Pagamento finalizado com sucesso!")
+            self.accept()
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao finalizar pagamento: {e}")
+
+    def adicionar_entrada_no_caixa(self):
+        # Obter o horário atual
+        horario = QDateTime.currentDateTime().toString("yyyy-MM-dd hh:mm:ss")
+
+        # Descrição da entrada
+        descricao = f"Pagamento - Cliente: {self.cliente}"
+
+        # Conectar ao banco de dados
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO transacoes (descricao, tipo, valor, data)
+            VALUES (?, ?, ?, ?)
+        ''', (descricao, 'entrada', self.total_pedido, horario))
+        conn.commit()
+        conn.close()
 
     def dividir_pagamento(self):
         partes, ok = QInputDialog.getInt(self, "Dividir em Partes Iguais", "Número de partes:")

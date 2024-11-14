@@ -6,7 +6,7 @@ from .Entrada_Saida import EntradaSaidaWindow
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(BASE_DIR, "..", "data")
-DB_PATH = os.path.join(DB_DIR, "transactions.db")
+DB_PATH = os.path.join(DB_DIR, "sistema.db")
 
 class FecharCaixaWidget(QWidget):
     def __init__(self, dashboard, fechar_caixa_callback):

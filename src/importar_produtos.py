@@ -61,7 +61,7 @@ class ImportarProdutosWidget(QWidget):
 
     def init_db(self):
         os.makedirs('data', exist_ok=True)
-        db_path = os.path.join('data', 'produtos.db')
+        db_path = os.path.join('data', 'sistema.db')
         connection = sqlite3.connect(db_path)
         cursor = connection.cursor()
         cursor.execute('''
@@ -110,7 +110,7 @@ class ImportarProdutosWidget(QWidget):
         if not name:
             QMessageBox.warning(self, "Erro", "O nome do produto é obrigatório.")
             return
-        db_path = os.path.join('data', 'produtos.db')
+        db_path = os.path.join('data', 'sistema.db')
         connection = sqlite3.connect(db_path)
         cursor = connection.cursor()
         cursor.execute('''
@@ -158,7 +158,7 @@ class AdicionarPedidoWidget(QWidget):
         layout.addWidget(self.cancel_button)
 
     def load_products(self):
-        db_path = os.path.join('data', 'produtos.db')
+        db_path = os.path.join('data', 'sistema.db')
         connection = sqlite3.connect(db_path)
         cursor = connection.cursor()
         cursor.execute("SELECT product_id, name FROM Products")
@@ -185,7 +185,7 @@ class AdicionarPedidoWidget(QWidget):
 
 def init_db():
     os.makedirs('data', exist_ok=True)
-    db_path = os.path.join('data', 'produtos.db')
+    db_path = os.path.join('data', 'sistema.db')
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
     cursor.execute('''
